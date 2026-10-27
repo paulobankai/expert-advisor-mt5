@@ -1,44 +1,131 @@
-# Expert Advisor MQL5 - XAUUSD (Gold)
+# Expert Advisor — Funcionario Automatizado
 
-Robô algorítmico desenvolvido em **MQL5** para execução automatizada de ordens no par **XAUUSD (Ouro)** no MetaTrader 5. Conta com gestão de risco quantitativa e dimensionamento dinâmico de lote baseado em volatilidade e drawdown máximo.
+> Robô algorítmico proprietário desenvolvido em MQL5 para execução automatizada de ordens no par **XAUUSD (Ouro)** via MetaTrader 5. Opera com lógica de rompimento de canais projetados, gestão de risco quantitativa e motor de decisão multi-variável.
 
----
-
-## 🏗️ Arquitetura do Sistema
-
-| Módulo | Descrição | Componentes / Indicadores |
-| :--- | :--- | :--- |
-| **Modo Automático** | Operações baseadas em tendência e rompimentos | Média Móvel Exponencial (EMA), RSI, ATR |
-| **Modo Manual / Híbrido** | Confirmação de entrada e gestão de ordens manuais | Filtros de Spread e Slippage |
-| **CHOP Index** | Identificação de mercado lateralizado / consolidação | Choppiness Index (Período 14) |
-| **Gestão de Risco** | Dimensionamento dinâmico de lote por risco percentual | Stop Loss Dinâmico, Take Profit Múltiplo, Trailing Stop |
+> ⚠️ **O código-fonte é proprietário e não está disponível publicamente.** Este repositório apresenta a arquitetura, capacidades do sistema e resultados de backtest.
 
 ---
 
-## 📊 Resultados de Backtest (XAUUSD)
+## Visão Geral
 
-Os testes foram realizados utilizando dados históricos de alta precisão (tick a tick) no MetaTrader 5 para o ativo **XAUUSD**.
-
-- **Lucro Líquido Total:** $12,450.00 USD
-- **Fator de Lucro (Profit Factor):** 1.85
-- **Drawdown Máximo:** 4.2%
-- **Taxa de Acerto (Win Rate):** 68.4%
-
-Veja o gráfico de desempenho em `backtest/chart_xauusd.png` e a planilha detalhada em `backtest/backtest_results.xlsx`.
+O **Funcionario Automatizado** é um Expert Advisor (EA) desenvolvido integralmente por **Paulo H. — PHrobots LTDA**, com foco em operações algorítmicas no mercado financeiro. O sistema opera em modo **totalmente automático** ou **semi-manual**, com canal de rompimento definido automaticamente ou desenhado manualmente pelo operador.
 
 ---
 
-## ⚙️ Instalação e Configuração
+## Arquitetura do Sistema
 
-1. Abra o **MetaTrader 5**.
-2. Vá em **Arquivo > Abrir Pasta de Dados**.
-3. Navegue até `MQL5 > Experts`.
-4. Copie o arquivo do Expert Advisor para esta pasta.
-5. Compile o código no MetaEditor (`F7`).
-6. Anexe ao gráfico de **XAUUSD (M15 ou H1)** habilitando o AutoTrading.
+```
+DETECÇÃO DE CANAL (CR)
+├── Modo Automático → Leitura e projeção de canal via candles
+└── Modo Manual     → Linhas desenhadas pelo operador no gráfico
+
+MOTOR DE DECISÃO
+├── CHOP Index      → Filtro de mercado lateralizado
+├── ADX             → Filtro de força de tendência
+├── Break-Even      → Proteção automática de lucro
+├── Pullback Filter → Controle de zona de entrada
+└── CHOP Pending    → Memória de rompimento bloqueado
+
+GESTÃO DE RISCO
+├── Risco fixo em dólares por trade
+├── Risco percentual do saldo (configurável)
+└── Dimensionamento automático de lote
+
+MODO BOOSTER (Multi-Ciclo)
+├── Modo Normal   → Controle por takes/stops absolutos
+├── Modo Positivo → Controle por saldo líquido
+├── Virada de Mão → Entrada oposta após stop
+└── Filtro de Tendência integrado
+
+PROTEÇÃO E RESILIÊNCIA
+├── Mutex multi-instância (sem ordens simultâneas)
+├── Persistência de estado diário (arquivo .dat)
+├── Magic Number único por símbolo
+└── Expiração por data hardcoded
+```
 
 ---
 
-## 📄 Licenciamento
+## Motor de Decisão — Variáveis
 
-Projeto proprietário desenvolvido para operações quantitativas em mercados globais.
+| Variável | Função |
+|---|---|
+| **CHOP Index** | Detecta mercado lateralizado e bloqueia entradas sem tendência |
+| **ADX** | Mede força da tendência antes de autorizar entrada |
+| **CHOP Pending** | Memoriza rompimentos durante CHOP alto e age quando mercado melhora |
+| **Filtro Combinado** | ADX + CHOP simultaneamente para máxima precisão |
+| **Exigir Direção Oposta** | Segunda entrada obrigatoriamente contrária à primeira |
+
+---
+
+## Gestão de Trade
+
+| Parâmetro | Descrição |
+|---|---|
+| **Take Profit** | Calculado em múltiplos do tamanho do canal (CR) |
+| **Stop Loss** | Calculado como fração configurável do canal |
+| **Break-Even** | Ativado após N níveis de lucro — modo Fechamento ou Toque |
+| **Pullback Zone** | Zona de entrada com cancelamento automático |
+| **Limite Diário** | Número máximo de operações por dia |
+
+---
+
+## Modo Booster
+
+| Sub-Modo | Comportamento |
+|---|---|
+| **Normal** | Para após X takes ou Y stops absolutos no dia |
+| **Positivo** | Para quando saldo líquido de takes − stops atinge o threshold |
+| **Virada de Mão (Sem Reset)** | Após stop, entra na direção oposta no mesmo canal |
+| **Virada de Mão (Com Reset)** | Após stop, aguarda novo canal bloqueando direção do stop anterior |
+
+---
+
+## Proteções do Sistema
+
+| Sistema | Descrição |
+|---|---|
+| **Mutex Inter-Instâncias** | Múltiplos robôs no mesmo terminal sem ordens simultâneas |
+| **Persistência de Estado** | Estado diário salvo em arquivo — resiste a reinicializações |
+| **Horário de Bloqueio** | Intervalos configuráveis sem abertura de ordens |
+| **Encerramento por Horário** | Posições fechadas automaticamente no horário limite |
+| **Filtro de Calendário** | Bloqueio nos últimos pregões úteis do mês |
+| **Dias de Operação** | Controle individual por dia da semana |
+| **Notificações Push** | Alertas via MetaTrader para C1, Pullback e Cancelamentos |
+
+---
+
+## Stack Tecnológica
+
+![MQL5](https://img.shields.io/badge/MQL5-Expert_Advisor-blue?style=flat-square)
+![MetaTrader5](https://img.shields.io/badge/MetaTrader_5-Plataforma-2CA5E0?style=flat-square)
+![XAUUSD](https://img.shields.io/badge/Ativo-XAUUSD_Ouro-FFD700?style=flat-square)
+
+- **Linguagem:** MQL5 (compilado nativo para MT5)
+- **Plataforma:** MetaTrader 5
+- **Ativo principal:** XAU/USD (Ouro)
+- **Multi-símbolo:** Suporte a múltiplas instâncias com magic number único por ativo
+
+---
+
+## Resultados de Backtest
+
+Arquivos disponíveis na raiz do repositório:
+- `chart_xauusd.png` — Print do robô em operação no gráfico
+- `backtest_results.xlsx` — Relatório detalhado de operações
+
+![Robô em operação no MT5](chart_xauusd.png)
+
+---
+
+## Direitos Autorais
+
+© 2026 Paulo H. — PHrobots LTDA. Todos os direitos reservados.
+Este software é proprietário. Qualquer reprodução ou uso não autorizado é expressamente proibido.
+
+---
+
+## Autor
+
+**Paulo Henrique Matos de Souza**
+🔗 [phrobots.com.br](https://phrobots.com.br) · 📧 paulohenriquems1975@gmail.com
